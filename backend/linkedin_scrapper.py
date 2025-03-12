@@ -16,7 +16,7 @@ def fetch_linkedin_profile(url):
     else:
         print(f"Error fetching LinkedIn profile: {response.status_code}")
         print(response.text)
-        return None
+        return {"Error fetching LinkedIn profile":response.text}
 
 # Main function
 if __name__ == "__main__":
