@@ -6,14 +6,11 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Load API Key
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# Initialize Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Function to fetch GitHub projects
 def fetch_github_projects(username):
     url = f"https://api.github.com/users/{username}/repos"
     response = requests.get(url)
@@ -26,9 +23,18 @@ def fetch_github_projects(username):
     project_list = []
 
     for repo in repos:
+        readme_url = f"https://api.github.com/repos/{username}/{repo['name']}/readme"
+        readme_response = requests.get(readme_url)
+
+        if readme_response.status_code == 200:
+            readme_data = readme_response.json()
+            readme_content = requests.get(readme_data["download_url"]).text
+        else:
+            readme_content = "No README.md available"
+
         project = {
             "name": repo["name"],
-            "description": repo["description"] if repo["description"] else "No description available",
+            "description": readme_content,
             "url": repo["html_url"],
             "language": repo["language"] if repo["language"] else "Not specified",
             "stars": repo["stargazers_count"],
