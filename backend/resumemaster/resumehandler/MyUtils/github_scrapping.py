@@ -90,8 +90,30 @@ def generate_resume_story(name:str, projects:list)->list:
 #     username = input("Enter GitHub username: ")
 #     projects = fetch_github_projects(username)
 
-#     for project in projects:
-#         project["description"] = summarize_project_description(project["description"])
+    if not projects:
+        print("No repositories found.")
+        exit(1)
 
-#     generate_resume_story(username, projects, "resume.pdf")
-#     print("Resume PDF generated successfully!")
+    # Display repositories with indices
+    print("\nRepositories fetched:")
+    for i, project in enumerate(projects, start=1):
+        print(f"{i}. {project['name']} ({project['language']}, ⭐ {project['stars']})")
+
+    # Prompt user to select repositories
+    selected_indices = input("\nEnter the numbers of the repositories you want to include (comma-separated): ")
+    selected_indices = [int(idx.strip()) - 1 for idx in selected_indices.split(",") if idx.strip().isdigit()]
+
+    # Filter selected repositories
+    selected_projects = [projects[i] for i in selected_indices if 0 <= i < len(projects)]
+
+    if not selected_projects:
+        print("No valid repositories selected.")
+        exit(1)
+
+    # Summarize descriptions for selected projects
+    for project in selected_projects:
+        project["description"] = summarize_project_description(project["description"])
+
+    # Generate PDF
+    generate_resume_pdf(username, selected_projects, "resume.pdf")
+    print("Resume PDF generated successfully!")
