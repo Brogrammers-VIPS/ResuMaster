@@ -90,7 +90,6 @@ def generate_resume_story(name:str, projects:list)->list:
 #     username = input("Enter GitHub username: ")
 #     projects = fetch_github_projects(username)
 
-<<<<<<< HEAD:backend/github_scrapping.py
     if not projects:
         print("No repositories found.")
         exit(1)
@@ -118,10 +117,3 @@ def generate_resume_story(name:str, projects:list)->list:
     # Generate PDF
     generate_resume_pdf(username, selected_projects, "resume.pdf")
     print("Resume PDF generated successfully!")
-=======
-#     for project in projects:
-#         project["description"] = summarize_project_description(project["description"])
-
-#     generate_resume_story(username, projects, "resume.pdf")
-#     print("Resume PDF generated successfully!")
->>>>>>> cfb75c3bafb51196016adeea2cbaab639010b032:backend/resumemaster/resumehandler/MyUtils/github_scrapping.py
