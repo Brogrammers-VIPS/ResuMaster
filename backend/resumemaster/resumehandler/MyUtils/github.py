@@ -1,26 +1,27 @@
+from PIL import Image as PILImage
 import json
 import requests
 import os
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import (Paragraph, Spacer,PageTemplate, Frame)
+from reportlab.platypus.doctemplate import BaseDocTemplate
+from reportlab.graphics.shapes import Drawing, Line
+from reportlab.lib.colors import black
+from reportlab.lib.units import inch
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GITHUB_PAT = os.getenv("GITHUB_PAT") 
 genai.configure(api_key=GEMINI_API_KEY)
 
-# LinkedIn API endpoint and key
 API_ENDPOINT = 'https://nubela.co/proxycurl/api/v2/linkedin'
 API_KEY = ''  # Replace with your actual API key
 HEADERS = {'Authorization': 'Bearer ' + API_KEY}
 
 def fetch_linkedin_profile(url):
-    """
-    Fetch LinkedIn profile data using the Proxycurl API.
-    """
     try:
         response = requests.get(API_ENDPOINT,
                                 params={'url': url, 'skills': 'include'},
@@ -37,18 +38,13 @@ def fetch_linkedin_profile(url):
         return {"error": "Exception occurred", "details": str(e)}
 
 def get_linkedin_data(linkedin_profile_url: str) -> dict:
-    """
-    Process LinkedIn profile data and save it as JSON.
-    """
     try:
-        # Fetch profile data from the API
         profile_data = fetch_linkedin_profile(linkedin_profile_url)
 
         if "error" in profile_data:
             print("Error encountered while fetching profile data.")
             return profile_data
 
-        # Parse and structure the resume data
         resume_data = {
             "full_name": profile_data.get("full_name", "Unknown Name"),
             "experiences": [],
@@ -56,7 +52,6 @@ def get_linkedin_data(linkedin_profile_url: str) -> dict:
             "skills": profile_data.get("skills", [])
         }
 
-        # Extract work experiences
         for exp in profile_data.get("experiences", []):
             resume_data["experiences"].append({
                 "title": exp.get("title", "Unknown"),
@@ -67,7 +62,6 @@ def get_linkedin_data(linkedin_profile_url: str) -> dict:
                 "ends_at": exp.get("ends_at", {}).get("year", "Present") if exp.get("ends_at") else "Present"
             })
 
-        # Extract education details
         for edu in profile_data.get("education", []):
             resume_data["education"].append({
                 "school": edu.get("school", "Unknown"),
@@ -77,7 +71,6 @@ def get_linkedin_data(linkedin_profile_url: str) -> dict:
                 "ends_at": edu.get("ends_at", {}).get("year", "Unknown") if edu.get("ends_at") else "Unknown"
             })
 
-        # Save the structured resume data to a JSON file
         output_file = "resume_data.json"
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(resume_data, f, indent=4, ensure_ascii=False)
@@ -92,22 +85,23 @@ def get_linkedin_data(linkedin_profile_url: str) -> dict:
 
 def fetch_github_projects(username):
     url = f"https://api.github.com/users/{username}/repos"
-    response = requests.get(url)
+    headers = {
+        "Authorization": f"Bearer {GITHUB_PAT}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         print(f"Error: {response.status_code}")
         return []
 
     repos = response.json()
-
-    # Sort repositories by creation date (most recent first)
     sorted_repos = sorted(repos, key=lambda repo: repo["created_at"], reverse=True)
-
     project_list = []
 
     for repo in sorted_repos:
         readme_url = f"https://api.github.com/repos/{username}/{repo['name']}/readme"
-        readme_response = requests.get(readme_url)
+        readme_response = requests.get(readme_url, headers=headers)
 
         if readme_response.status_code == 200:
             readme_data = readme_response.json()
@@ -168,52 +162,61 @@ def format_skills(skills):
 def format_personal_details(name, email, phone, languages, linkedin_url):
     story = []
     styles = getSampleStyleSheet()
-    
-    # Add name
     story.append(Paragraph(f"<b>{name}</b>", styles['Title']))
     story.append(Spacer(1, 12))
-    
-    # Add contact details
     contact_details = f"✉️ {email} | 📞 {phone} | 🌐 <link href='{linkedin_url}'>{linkedin_url}</link>"
     story.append(Paragraph(contact_details, styles['BodyText']))
     story.append(Spacer(1, 12))
-    
-    # Add languages
     languages_text = ", ".join([lang.strip() for lang in languages])
     story.append(Paragraph(f"<b>Languages:</b> {languages_text}", styles['BodyText']))
     story.append(Spacer(1, 12))
-    
     return story
+
+def add_horizontal_line():
+    d = Drawing(100, 1)
+    line = Line(0, 0, 6 * inch, 0)
+    line.strokeColor = black
+    line.strokeWidth = 1
+    d.add(line)
+    return d
 
 def generate_resume_story(name, email, phone, languages, linkedin_url, projects, resume_data):
     styles = getSampleStyleSheet()
     story = []
-
-    # Add personal details
     story.extend(format_personal_details(name, email, phone, languages, linkedin_url))
+    story.append(add_horizontal_line())
+    story.append(Spacer(1, 12))
 
-    # Add experience
     if resume_data["experiences"]:
         story.append(Paragraph("<u>Experience</u>", styles['Heading2']))
         story.extend(format_experience(resume_data["experiences"]))
+        story.append(add_horizontal_line())
+        story.append(Spacer(1, 12))
     else:
         story.append(Paragraph("Experience: No experience data available.", styles['BodyText']))
+        story.append(add_horizontal_line())
+        story.append(Spacer(1, 12))
 
-    # Add education
     if resume_data["education"]:
         story.append(Paragraph("<u>Education</u>", styles['Heading2']))
         story.extend(format_education(resume_data["education"]))
+        story.append(add_horizontal_line())
+        story.append(Spacer(1, 12))
     else:
         story.append(Paragraph("Education: No education data available.", styles['BodyText']))
+        story.append(add_horizontal_line())
+        story.append(Spacer(1, 12))
 
-    # Add skills
     if resume_data["skills"]:
         story.append(Paragraph("<u>Skills</u>", styles['Heading2']))
         story.extend(format_skills(resume_data["skills"]))
+        story.append(add_horizontal_line())
+        story.append(Spacer(1, 12))
     else:
         story.append(Paragraph("Skills: No skills data available.", styles['BodyText']))
+        story.append(add_horizontal_line())
+        story.append(Spacer(1, 12))
 
-    # Add GitHub projects
     story.append(Paragraph("<u>GitHub Projects</u>", styles['Heading2']))
     story.append(Spacer(1, 12))
 
@@ -223,34 +226,50 @@ def generate_resume_story(name, email, phone, languages, linkedin_url, projects,
         project_desc = Paragraph(project['description'], styles['BodyText'])
         project_language = Paragraph(f"<b>Language:</b> {project['language']}", styles['BodyText'])
         project_stars = Paragraph(f"<b>⭐ Stars:</b> {project['stars']}", styles['BodyText'])
-
         story.extend([project_name, project_url, project_desc, project_language, project_stars, Spacer(1, 12)])
 
+    story.append(add_horizontal_line())
+    story.append(Spacer(1, 12))
     return story
 
 def generate_resume_pdf(name, email, phone, languages, linkedin_url, projects, resume_data, output_pdf):
-    doc = SimpleDocTemplate(output_pdf, pagesize=letter)
+    doc = BaseDocTemplate(output_pdf, pagesize=letter)
+
+    def add_background(canvas, doc):
+        canvas.saveState()
+        background = "template1.jpg"
+        img = PILImage.open(background)
+        img_width, img_height = img.size
+        aspect = img_height / float(img_width)
+        page_width, page_height = letter
+        new_width = page_width
+        new_height = new_width * aspect
+
+        if new_height > page_height:
+            new_height = page_height
+            new_width = new_height / aspect
+
+        canvas.drawImage(background, 0, 0, width=new_width, height=new_height, preserveAspectRatio=True)
+        canvas.restoreState()
+
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+    page_template = PageTemplate(id='Background', frames=frame, onPage=add_background)
+    doc.addPageTemplates([page_template])
     story = generate_resume_story(name, email, phone, languages, linkedin_url, projects, resume_data)
     doc.build(story)
 
 if __name__ == "__main__":
-    # Prompt user for personal details
     name = input("Enter your full name: ")
     email = input("Enter your email address: ")
     phone = input("Enter your phone number: ")
     languages = input("Enter languages you know (comma-separated): ").split(',')
-
-    # Prompt user for LinkedIn profile URL
     linkedin_profile_url = input("Enter LinkedIn profile URL (e.g., https://www.linkedin.com/in/shivang-rustagi-aa0a8724a/): ").strip()
 
-    # Validate the URL format
     if not linkedin_profile_url.startswith("https://www.linkedin.com/in/"):
         print("Invalid LinkedIn profile URL. Please enter a valid URL.")
     else:
-        # Fetch and process LinkedIn data
         resume_data = get_linkedin_data(linkedin_profile_url)
 
-    # Prompt user for GitHub username
     username = input("Enter GitHub username: ")
     projects = fetch_github_projects(username)
 
@@ -258,26 +277,20 @@ if __name__ == "__main__":
         print("No repositories found.")
         exit(1)
 
-    # Display repositories with indices
     print("\nRepositories fetched:")
     for i, project in enumerate(projects, start=1):
         print(f"{i}. {project['name']} ({project['language']}, ⭐ {project['stars']})")
 
-    # Prompt user to select repositories
     selected_indices = input("\nEnter the numbers of the repositories you want to include (comma-separated): ")
     selected_indices = [int(idx.strip()) - 1 for idx in selected_indices.split(",") if idx.strip().isdigit()]
-
-    # Filter selected repositories
     selected_projects = [projects[i] for i in selected_indices if 0 <= i < len(projects)]
 
     if not selected_projects:
         print("No valid repositories selected.")
         exit(1)
 
-    # Summarize descriptions for selected projects
     for project in selected_projects:
         project["description"] = summarize_project_description(project["description"])
 
-    # Generate PDF
     generate_resume_pdf(name, email, phone, languages, linkedin_profile_url, selected_projects, resume_data, "resume.pdf")
     print("Resume PDF generated successfully!")
