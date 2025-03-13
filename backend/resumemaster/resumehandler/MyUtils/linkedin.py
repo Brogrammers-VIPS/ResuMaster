@@ -2,7 +2,7 @@ import json
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-
+from resumehandler.MyUtils.linkedin_scrapper import *
 # Function to load JSON data from file
 def load_resume_data(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
@@ -38,8 +38,8 @@ def format_skills(skills):
     story.append(Spacer(1, 12))
     return story
 # Function to generate the full resume
-def generate_resume(resume_data, output_pdf):
-    doc = SimpleDocTemplate(output_pdf, pagesize=letter)
+def get_linkdin_story(linkdin_url:str)->list:
+    resume_data=get_linkdin_data(linkdin_url)
     styles = getSampleStyleSheet()
     story = []
 
@@ -69,14 +69,14 @@ def generate_resume(resume_data, output_pdf):
         story.append(Paragraph("Skills: No skills data available.", styles['BodyText']))
 
 # Build the PDF
-    doc.build(story)
+    return story
 
 # Main function
-if __name__ == "__main__":
-# Load resume data from JSON file
-    resume_data = load_resume_data("resume_data.json")
+# if __name__ == "__main__":
+# # Load resume data from JSON file
+#     resume_data = load_resume_data("resume_data.json")
 
-# Generate the resume in PDF format
-output_pdf = "resume.pdf"
-generate_resume(resume_data, output_pdf)
-print(f"Resume saved to {output_pdf}")
+# # Generate the resume in PDF format
+# output_pdf = "resume.pdf"
+# get_linkdin_story(resume_data, output_pdf)
+# print(f"Resume saved to {output_pdf}")
