@@ -14,7 +14,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 # LinkedIn API endpoint and key
 API_ENDPOINT = 'https://nubela.co/proxycurl/api/v2/linkedin'
-API_KEY = 'BjkQVAiC55Te9t1zEmiFZg'  # Replace with your actual API key
+API_KEY = ''  # Replace with your actual API key
 HEADERS = {'Authorization': 'Bearer ' + API_KEY}
 
 def fetch_linkedin_profile(url):
