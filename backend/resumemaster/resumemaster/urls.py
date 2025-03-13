@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from resumehandler.views import *
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('test/',test)
+    path('test/', TestView.as_view(), name='test'),
+    path('get-projects/', GitHubProjectsView.as_view(), name='get-projects'),
+    path('build-resume/', ResumeBuilderView.as_view(), name='build-resume'),
 ]
