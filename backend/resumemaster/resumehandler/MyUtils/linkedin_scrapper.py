@@ -19,8 +19,8 @@ def fetch_linkedin_profile(url):
         return {"Error fetching LinkedIn profile":response.text}
 
 # Main function
-if __name__ == "__main__":
-    linkedin_profile_url = input("Enter LinkedIn profile URL (e.g., https://www.linkedin.com/in/shivang-rustagi-aa0a8724a/): ").strip()
+def get_linkdin_data(linkedin_profile_url:str)->dict:
+    #linkedin_profile_url = input("Enter LinkedIn profile URL (e.g., https://www.linkedin.com/in/shivang-rustagi-aa0a8724a/): ").strip()
 
     profile_data = fetch_linkedin_profile(linkedin_profile_url)
 
@@ -51,9 +51,10 @@ if __name__ == "__main__":
                 "ends_at": edu.get("ends_at", {}).get("year", "Unknown") if edu.get("ends_at") else "Unknown"
             })
 
-        output_file = "resume_data.json"
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(resume_data, f, indent=4)
+        # output_file = "resume_data.json"
+        # with open(output_file, "w", encoding="utf-8") as f:
+        #     json.dump(resume_data, f, indent=4)
 
-        print(json.dumps(resume_data, indent=4))
-        print(f"Resume data saved to {output_file}")
+        # print(json.dumps(resume_data, indent=4))
+        # print(f"Resume data saved to {output_file}")
+        return resume_data
