@@ -61,8 +61,8 @@ def summarize_project_description(description):
         return description
 
 
-def generate_resume_pdf(name, projects, output_pdf):
-    doc = SimpleDocTemplate(output_pdf, pagesize=letter)
+def generate_resume_story(name:str, projects:list)->list:
+    
     styles = getSampleStyleSheet()
     story = []
 
@@ -83,13 +83,14 @@ def generate_resume_pdf(name, projects, output_pdf):
 
         story.extend([project_name, project_url, project_desc, project_language, project_stars, Spacer(1, 12)])
 
-    doc.build(story)
+    return story
 
 
-if __name__ == "__main__":
-    username = input("Enter GitHub username: ")
-    projects = fetch_github_projects(username)
+# if __name__ == "__main__":
+#     username = input("Enter GitHub username: ")
+#     projects = fetch_github_projects(username)
 
+<<<<<<< HEAD:backend/github_scrapping.py
     if not projects:
         print("No repositories found.")
         exit(1)
@@ -117,3 +118,10 @@ if __name__ == "__main__":
     # Generate PDF
     generate_resume_pdf(username, selected_projects, "resume.pdf")
     print("Resume PDF generated successfully!")
+=======
+#     for project in projects:
+#         project["description"] = summarize_project_description(project["description"])
+
+#     generate_resume_story(username, projects, "resume.pdf")
+#     print("Resume PDF generated successfully!")
+>>>>>>> cfb75c3bafb51196016adeea2cbaab639010b032:backend/resumemaster/resumehandler/MyUtils/github_scrapping.py
