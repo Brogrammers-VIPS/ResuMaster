@@ -1,2 +1,5 @@
 .env
 /resumeVENV
+resume.pdf
+resume_data.json
+__pycache__/

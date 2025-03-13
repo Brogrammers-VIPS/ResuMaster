@@ -216,7 +216,7 @@ def generate_resume_pdf(name, email, phone, languages, linkedin_url, projects, r
     
     def add_background(canvas, doc):
         canvas.saveState()
-        background = "template1.jpg"
+        background = "resumehandler/MyUtils/template1.jpg"
         img = PILImage.open(background)
         img_width, img_height = img.size
         aspect = img_height / float(img_width)
