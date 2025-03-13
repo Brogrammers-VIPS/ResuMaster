@@ -20,9 +20,13 @@ def fetch_github_projects(username):
         return []
 
     repos = response.json()
+
+    # Sort repositories by creation date (most recent first)
+    sorted_repos = sorted(repos, key=lambda repo: repo["created_at"], reverse=True)
+
     project_list = []
 
-    for repo in repos:
+    for repo in sorted_repos:
         readme_url = f"https://api.github.com/repos/{username}/{repo['name']}/readme"
         readme_response = requests.get(readme_url)
 
@@ -56,6 +60,7 @@ def summarize_project_description(description):
         print(f"Error with Gemini AI: {e}")
         return description
 
+
 def generate_resume_pdf(name, projects, output_pdf):
     doc = SimpleDocTemplate(output_pdf, pagesize=letter)
     styles = getSampleStyleSheet()
@@ -79,6 +84,7 @@ def generate_resume_pdf(name, projects, output_pdf):
         story.extend([project_name, project_url, project_desc, project_language, project_stars, Spacer(1, 12)])
 
     doc.build(story)
+
 
 if __name__ == "__main__":
     username = input("Enter GitHub username: ")
