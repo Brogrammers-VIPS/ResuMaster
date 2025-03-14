@@ -18,7 +18,7 @@ GITHUB_PAT = os.getenv("GITHUB_PAT")
 genai.configure(api_key=GEMINI_API_KEY)
 
 API_ENDPOINT = 'https://nubela.co/proxycurl/api/v2/linkedin'
-API_KEY = 'R8H8mWkviDrGNAOuHVrFVg'  # Replace with your actual API key
+API_KEY = ''  # Replace with your actual API key
 HEADERS = {'Authorization': 'Bearer ' + API_KEY}
 
 def fetch_linkedin_profile(url):
