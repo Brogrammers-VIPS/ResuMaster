@@ -18,7 +18,7 @@ GITHUB_PAT = os.getenv("GITHUB_PAT")
 genai.configure(api_key=GEMINI_API_KEY)
 
 API_ENDPOINT = 'https://nubela.co/proxycurl/api/v2/linkedin'
-API_KEY = ''  # Replace with your actual API key
+API_KEY = 'R8H8mWkviDrGNAOuHVrFVg'  # Replace with your actual API key
 HEADERS = {'Authorization': 'Bearer ' + API_KEY}
 
 def fetch_linkedin_profile(url):
@@ -216,7 +216,7 @@ def generate_resume_pdf(name, email, phone, languages, linkedin_url, projects, r
     
     def add_background(canvas, doc):
         canvas.saveState()
-        background = "template1.jpg"
+        background = "C:\\Users\\shiva\\OneDrive\\Desktop\\ResuMaster\\backend\\resumemaster\\resumehandler\\MyUtils\\template1.jpg"
         img = PILImage.open(background)
         img_width, img_height = img.size
         aspect = img_height / float(img_width)
