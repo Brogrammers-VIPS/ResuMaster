@@ -11,6 +11,14 @@ from reportlab.lib.colors import black
 from reportlab.lib.units import inch
 import google.generativeai as genai
 from dotenv import load_dotenv
+import joblib
+import scipy
+import os
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+matrix=scipy.sparse.load_npz(os.path.join("resumehandler", "MyUtils",'sparse_matrix.npz'))
+tfidf=joblib.load(os.path.join("resumehandler", "MyUtils",'tfidf_vectorizer.pkl'))
+df=pd.read_csv(os.path.join("resumehandler", "MyUtils",'job_data.csv'))
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -210,6 +218,22 @@ def generate_resume_story(name, email, phone, languages, linkedin_url, projects,
     story.append(add_horizontal_line())
     story.append(Spacer(1, 0.1))  # Reduced spacing
     return story
+
+def recommendation(job_description_input:str):
+    job_desc_vec = tfidf.transform([job_description_input])  
+    cosine_sim = cosine_similarity(job_desc_vec, matrix).flatten()
+    distances = sorted(list(enumerate(cosine_sim)), key=lambda x: x[1], reverse=True)[1:16] 
+
+    jobs = []
+    for i in distances:
+        
+        job_title = df.iloc[i[0]]['Title']  
+        job_description = df.iloc[i[0]]['Job Description']  
+        similarity_score = i[1] 
+        jobs.append((job_title, job_description, similarity_score))  
+    
+    
+    return jobs
 
 def generate_resume_pdf(name, email, phone, languages, linkedin_url, projects,template_id, resume_data, output_pdf):
     doc = BaseDocTemplate(output_pdf, pagesize=letter)

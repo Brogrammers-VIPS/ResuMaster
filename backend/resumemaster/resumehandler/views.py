@@ -1,11 +1,11 @@
 from typing import Dict, List, Any
-from django.http import FileResponse, HttpRequest
+from django.http import FileResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
-from .MyUtils import github_scrapping, github
-from .serializers import ResumeSerializer, GitHubSerializer
+from .MyUtils import github
+from .serializers import ResumeSerializer, GitHubSerializer,Skillset
 
 class TestView(APIView):
     def get(self, request: Request) -> Response:
@@ -51,3 +51,13 @@ class ResumeBuilderView(APIView):
                 return Response({"error": "Resume generation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Recommendation(APIView):
+    def post(self, request: Request) -> Response:
+        serializer : Skillset = Skillset(data=request.data)
+        if serializer.is_valid():
+            skills: str = serializer.validated_data['skills']
+            result = github.recommendation(skills)
+
+            return Response({"recommended_jobs":result}, status=status.HTTP_200_OK)
