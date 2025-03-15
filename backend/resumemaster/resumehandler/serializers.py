@@ -18,3 +18,6 @@ class ResumeSerializer(serializers.Serializer):
 
 class GitHubSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
+
+class Skillset(serializers.Serializer):
+    skills = serializers.CharField()
