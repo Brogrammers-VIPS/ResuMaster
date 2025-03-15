@@ -211,12 +211,12 @@ def generate_resume_story(name, email, phone, languages, linkedin_url, projects,
     story.append(Spacer(1, 0.1))  # Reduced spacing
     return story
 
-def generate_resume_pdf(name, email, phone, languages, linkedin_url, projects, resume_data, output_pdf):
+def generate_resume_pdf(name, email, phone, languages, linkedin_url, projects,template_id, resume_data, output_pdf):
     doc = BaseDocTemplate(output_pdf, pagesize=letter)
     
     def add_background(canvas, doc):
         canvas.saveState()
-        background = "C:\\Users\\shiva\\OneDrive\\Desktop\\ResuMaster\\backend\\resumemaster\\resumehandler\\MyUtils\\template1.jpg"
+        background = os.path.join("resumehandler", "MyUtils", f"template{template_id}.jpg")
         img = PILImage.open(background)
         img_width, img_height = img.size
         aspect = img_height / float(img_width)
