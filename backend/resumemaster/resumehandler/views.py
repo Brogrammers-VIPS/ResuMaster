@@ -16,7 +16,7 @@ class GitHubProjectsView(APIView):
         serializer: GitHubSerializer = GitHubSerializer(data=request.data)
         if serializer.is_valid():
             username: str = serializer.validated_data['username']
-            projects: List[Dict[str, Any]] = github_scrapping.fetch_github_projects(username)
+            projects: List[Dict[str, Any]] = github.fetch_github_projects(username)
             return Response({"projects": projects}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -33,22 +33,15 @@ class ResumeBuilderView(APIView):
                 return Response({"error": "Invalid LinkedIn profile URL"}, status=status.HTTP_400_BAD_REQUEST)
 
             resume_data: Dict[str, Any] = github.get_linkedin_data(linkedin_profile_url)
-
-            # Fetch GitHub projects
-            github_username: str = data['github_username']
-            projects: List[Dict[str, Any]] = github.fetch_github_projects(github_username)
-            if not projects:
-                return Response({"error": "No projects found on GitHub"}, status=status.HTTP_404_NOT_FOUND)
-
-            # Select first 2 projects
-            selected_projects: List[Dict[str, Any]] = projects[:2]
+            selected_projects: List[Dict[str, Any]] = data['projects']
             for project in selected_projects:
                 project["description"] = github.summarize_project_description(project["description"])
-
+            
+            template_id: int = data['template_id']
             # Generate Resume
             github.generate_resume_pdf(
                 data['name'], data['email'], data['phone'], data['languages'],
-                linkedin_profile_url, selected_projects, resume_data, output_pdf
+                linkedin_profile_url, selected_projects,template_id, resume_data, output_pdf
             )
 
             try:
