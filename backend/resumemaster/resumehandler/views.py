@@ -61,3 +61,42 @@ class Recommendation(APIView):
             result = github.recommendation(skills)
 
             return Response({"recommended_jobs":result}, status=status.HTTP_200_OK)
+        
+
+class ProfileDataView(APIView):
+    def post(self, request) -> Response:
+        """
+        Fetch LinkedIn profile data and summarize GitHub project descriptions.
+        """
+        linkedin_url: str = request.data.get("linkedin_url", "").strip()
+        github_projects: List[Dict[str, Any]] = request.data.get("github_projects", [])
+
+        print(linkedin_url)
+        if not linkedin_url.startswith("https://www.linkedin.com/in/"):
+            return Response({"error": "Invalid LinkedIn profile URL"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch LinkedIn data
+        linkedin_data: Dict[str, Any] = github.get_linkedin_data(linkedin_url)
+
+        print(linkedin_data)
+        # Summarize GitHub project descriptions
+        summarized_projects: List[Dict[str, Any]] = []
+        for project in github_projects:
+            summarized_projects.append({
+                "name": project["name"],
+                "description": github.summarize_project_description(project["description"]),
+                "url": project["url"],
+                "language": project["language"],
+                "stars": project["stars"],
+            })
+
+        # Prepare response
+        response_data = {
+            "full_name": linkedin_data.get("full_name", "Unknown Name"),
+            "education": linkedin_data.get("education", []),
+            "experience": linkedin_data.get("experiences", []),
+            "skills": linkedin_data.get("skills", []),
+            "projects": summarized_projects,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)

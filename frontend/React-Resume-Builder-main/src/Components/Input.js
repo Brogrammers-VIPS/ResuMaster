@@ -111,9 +111,9 @@ function Input() {
                 id: repo.id || Math.random(), // Generate fallback ID if missing
                 name: repo.name,
                 description: repo.description || "No README.md available",
-                tech: repo.language || "Not specified",
+                language: repo.language || "Not specified",
                 stars: repo.stars || 0,
-                link: repo.url
+                url: repo.url
             })));
     
         } catch (error) {
@@ -134,16 +134,60 @@ function Input() {
         }
     };
 
-    const onSubmit = (data) => {
-        // Add selected projects to form data
-        const formData = {
-            ...data,
-            project: selectedProjects
-        };
-        
-        dispatch(getuserdata(formData));
+    const onSubmit = async (data) => {
+        console.log("Form Data:", data);  // Check what data is being captured
+
+        if (!data.link?.linkedin || selectedProjects.length === 0) {
+            alert("Please provide a LinkedIn profile URL and select at least one project.");
+            return;
+        }
+    
+        console.log("LinkedIn URL:", data.link.linkedin);
+
+        if (!data.link?.linkedin || selectedProjects.length === 0) {
+            alert("Please provide a LinkedIn profile URL and select at least one project.");
+            return;
+        }
         navigate("/selecttheme");
-    }
+        try {
+            // Make API request to fetch summarized data
+            const response = await fetch("http://127.0.0.1:8000/get-profile-data/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    linkedin_url: data.link.linkedin,
+                    github_projects: selectedProjects, 
+                }),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to fetch profile data. Please try again.");
+            }
+    
+            const profileData = await response.json();
+            
+            // Merge received data into formData
+            const formData = {
+                ...data,
+                education: profileData.education || [],
+                experience: profileData.experience || [],
+                projects: profileData.projects || [],
+                skills: profileData.skills || [],
+            };
+            console.log("Profile Data:", formData);
+    
+            // Save updated form data
+            dispatch(getuserdata(formData));
+            
+    
+        } catch (error) {
+            console.error("Error fetching profile data:", error);
+            alert("Error fetching profile data. Please check your LinkedIn and GitHub inputs.");
+        }
+    };
+    
 
     const clrFunc = () => {
         setGithubRepos([]);

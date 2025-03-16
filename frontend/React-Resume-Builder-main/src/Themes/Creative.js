@@ -66,9 +66,9 @@ function Creative() {
                 <div style={{ color: themeclr, "fontSize": "19px" }}>{userdata.personal.title}</div>
                 <div className={"mt-2"}>{userdata.personal.quote}</div>
               </div>
-              <div style={{ "border": `2px solid ${themeclr}`, "borderRadius": "40px" }}>
+              { /* <div style={{ "border": `2px solid ${themeclr}`, "borderRadius": "40px" }}>
                 <img src={userdata.personal.image} alt=''></img>
-              </div>
+              </div> */ }
             </div>
 
             <div className='theme3-sec2'>
@@ -109,12 +109,10 @@ function Creative() {
                     {userdata.experience.map((item, index) => {
                       return (
                         <div key={index}>
-                          <div style={{ "fontWeight": "bold", "fontSize": "14px" }}>{item.worktitle}</div>
+                          <div style={{ "fontWeight": "bold", "fontSize": "14px" }}>{item.title}</div>
                           <div style={{ "fontSize": "14px" }}>{item.company}</div>
-                          <div className='text-xs italic' style={{ "color": themeclr }}>{item.yearfrom} - {item.present === true ? "Present" : item.yearto}</div>
-                          <ul>
-                            <li className={"ml-4"} style={{ "listStyle": "disc outside" }}>{item.description}</li>
-                          </ul>
+                          <div className='text-xs italic' style={{ "color": themeclr }}>{item.starts_at} - {item.present === true ? "Present" : item.ends_at}</div>
+                          
                         </div>
                       )
                     })}
@@ -127,11 +125,10 @@ function Creative() {
                     {userdata.education.map((item, index) => {
                       return (
                         <div key={index}>
-                          <div style={{ "fontWeight": "bold", "fontSize": "14px" }}>{item.degree}</div>
-                          <div style={{ "fontSize": "14px" }}>{item.university}</div>
+                          
+                          <div style={{ "fontSize": "14px" }}>{item.school}</div>
                           <div className='text-xs italic edu-grading' style={{ color: themeclr }}>
-                            <div>{item.yearfrom} - {item.yearto}</div>
-                            <div>{item.grade}{item.gradetype === "grade" ? "/10" : "%"}</div>
+                            <div>{item.starts_at} - {item.ends_at || "Present"}</div>
                           </div>
                         </div>
                       )
@@ -144,32 +141,29 @@ function Creative() {
               <div style={!userdata.experience[0].company ? { "gridColumn": "1/2", "gridRow": "1/2" } : null}>
 
                 <div className='theme3-sec'>
-                  <div className='theme3-head' style={{ "color": themeclr }}>SKILLS</div>
-                  <div className='theme3-sec-content'>
-                    <div className='theme3-skill'>
-                      {userdata.personal.technicalskill.map((item, index) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <div>{item.skill}</div>
-                            <div className='theme3-rate'>
-                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, index) => {
-                                return (
-                                  <React.Fragment key={index}>
-                                    {item.rate < i ? <div className='theme3-ratediv' style={{ "color": themeclr }}><div className='theme3-ratediv-inner'></div></div> :
-                                      <div className='theme3-ratediv' style={{ "color": themeclr }}><div className='theme3-ratediv-inner' style={{ "color": themeclr, "backgroundColor": themeclr }}></div></div>}
-                                  </React.Fragment>
 
-                                )
-                              })}
-                            </div>
-                          </React.Fragment>
-                        )
-                      })}
+                    <div className='theme3-head' style={{ color: themeclr }}>SKILLS</div>
+                    <div className='theme3-sec-content'>
+                      <div className='theme3-skill'>
+                        {userdata.skills.map((skill, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              backgroundColor: themeclr,
+                              borderRadius: "5px",
+                              padding: "3px",
+                              fontSize: "12px"
+                            }}
+                          >
+                            {skill}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {userdata.project[0].name ? <div className='theme3-sec'>
+
+                {userdata.projects.length > 0 ? <div className='theme3-sec'>
                   <div className='theme3-head' style={{ "color": themeclr }}>PROJECTS</div>
                   <div className='theme3-sec-content'>
                     {userdata.project.map((item, index) => {
@@ -177,7 +171,7 @@ function Creative() {
                         <div key={index}>
                           <div style={{ "fontSize": "14px", "fontWeight": "bold" }}>{item.name}</div>
                           <div className={"text-xs"} style={{ color: themeclr }}>{item.tech}</div>
-                          {item.des?<div className={'mt-1'}>{item.des}</div>:null}
+                          {item.description?<div className={'mt-1'}>{item.description}</div>:null}
                         </div>
                       )
                     })}

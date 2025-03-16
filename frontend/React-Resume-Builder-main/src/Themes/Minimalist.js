@@ -65,9 +65,9 @@ function Minimalist() {
 
                         <div className='theme4-sec1' style={{ "borderColor": themeclr }}>
 
-                            <div className='theme4-imgdiv' >
+                            {/* <div className='theme4-imgdiv' >
                                 <img style={{ "color": themeclr }} src={userdata.personal.image} alt=""></img>
-                            </div>
+                            </div> */}
 
                             <div className='theme4-sec'>
                                 <div style={{ "display": "grid", "gridTemplateColumns": "auto 1fr", "alignItems": "center", gap: "7px" }}>
@@ -75,17 +75,25 @@ function Minimalist() {
                                     <div className='theme4-head' style={{ "color": themeclr }}>SKILLS</div>
                                 </div>
                                 <div className='theme4-content'>
-                                    {userdata.personal.technicalskill.map((item, index) => {
+                                    {userdata.skills.map((item, index) => {
                                         return (
-                                            <div key={index} style={{ "width": "100%" }}>
-                                                <div style={{ "padding": "5px 10px", "backgroundColor": "#9CB5C6", "borderRadius": "5px", "width": `${(item.rate / 10) * 100}%` }} key={index}>{item.skill}</div>
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    backgroundColor: themeclr,
+                                                    borderRadius: "5px",
+                                                    padding: "3px",
+                                                    fontSize: "12px"
+                                                }}
+                                            >
+                                                {item}
                                             </div>
                                         )
                                     })}
                                 </div>
                             </div>
 
-                            <div className='theme4-sec'>
+                            {/* <div className='theme4-sec'>
                                 <div style={{ "display": "grid", "gridTemplateColumns": "auto 1fr", "alignItems": "center", gap: "7px" }}>
                                     <CgShapeRhombus className={"text-lg"} style={{ "color": themeclr }} />
                                     <div className='theme4-head' style={{ "color": themeclr }}>INTERESTS</div>
@@ -99,7 +107,7 @@ function Minimalist() {
                                         })}
                                     </ul>
                                 </div>
-                            </div>
+                            </div> */}
 
                         </div>
                         <div className='theme4-sec2'>
@@ -136,7 +144,7 @@ function Minimalist() {
                                 </div>
                             </div>
 
-                            {userdata.experience[0].company ? <div className='theme4-sec'>
+                            {userdata.experience.length > 0 && userdata.experience[0].company ? <div className='theme4-sec'>
                                 <div style={{ "display": "grid", "gridTemplateColumns": "auto 1fr", "alignItems": "center", gap: "7px" }}>
                                     <CgShapeRhombus className={"text-lg"} style={{ "color": themeclr }} />
                                     <div className='theme4-head' style={{ "color": themeclr }}>WORK EXPERIENCE</div>
@@ -145,12 +153,9 @@ function Minimalist() {
                                     {userdata.experience.map((item, index) => {
                                         return (
                                             <div key={index}>
-                                                <div style={{ "fontWeight": "bold", "fontSize": "14px" }}>{item.worktitle}</div>
+                                                <div style={{ "fontWeight": "bold", "fontSize": "14px" }}>{item.title}</div>
                                                 <div style={{ "fontSize": "14px" }}>{item.company}</div>
-                                                <div className='text-xs italic' style={{ "color": smallclr }}>{item.yearfrom} - {item.present === true ? "Present" : item.yearto}</div>
-                                                <ul>
-                                                    <li className={"ml-4"} style={{ "listStyle": "circle outside" }}>{item.description}</li>
-                                                </ul>
+                                                <div className='text-xs italic' style={{ "color": smallclr }}>{item.starts_at} - {item.present === true ? "Present" : item.ends_at}</div>
                                             </div>
                                         )
                                     })}
@@ -168,7 +173,7 @@ function Minimalist() {
                                             <div key={index}>
                                                 <div style={{ "fontSize": "14px", "fontWeight": "bold" }}>{item.name}</div>
                                                 <div className={"text-xs"} style={{ color: smallclr }}>{item.tech}</div>
-                                                {item.des ? <div className={'mt-1'}>{item.des}</div> : null}
+                                                {item.description ? <div className={'mt-1'}>{item.description}</div> : null}
                                             </div>
                                         )
                                     })}
@@ -201,11 +206,10 @@ function Minimalist() {
                                     {userdata.education.map((item, index) => {
                                         return (
                                             <div key={index}>
-                                                <div style={{ "fontWeight": "bold", "fontSize": "14px" }}>{item.degree}</div>
-                                                <div style={{ "fontSize": "14px" }}>{item.university}</div>
+                                                <div style={{ "fontSize": "14px" }}>{item.school}</div>
                                                 <div className='text-xs italic edu-grading' style={{ color: smallclr }}>
-                                                    <div>{item.yearfrom} - {item.yearto}</div>
-                                                    <div>{item.grade}{item.gradetype === "grade" ? "/10" : "%"}</div>
+                                                    <div>{item.starts_at} - {item.ends_at || "Present"}</div>
+                                                    
                                                 </div>
                                             </div>
                                         )
