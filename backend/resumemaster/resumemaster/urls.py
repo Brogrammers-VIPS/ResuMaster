@@ -21,4 +21,5 @@ urlpatterns = [
     path('test/', TestView.as_view(), name='test'),
     path('get-projects/', GitHubProjectsView.as_view(), name='get-projects'),
     path('build-resume/', ResumeBuilderView.as_view(), name='build-resume'),
+    path('recommendation/', Recommendation.as_view(), name='recommendation'),
 ]

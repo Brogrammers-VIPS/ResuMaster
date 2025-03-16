@@ -18,7 +18,7 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 matrix=scipy.sparse.load_npz(os.path.join("resumehandler", "MyUtils",'sparse_matrix.npz'))
 tfidf=joblib.load(os.path.join("resumehandler", "MyUtils",'tfidf_vectorizer.pkl'))
-df=pd.read_csv(os.path.join("resumehandler", "MyUtils",'job_data.csv'))
+df=pd.read_csv(os.path.join("resumehandler", "MyUtils",'job_title_des.csv'))
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -89,6 +89,7 @@ def fetch_github_projects(username):
         "Authorization": f"Bearer {GITHUB_PAT}",
         "Accept": "application/vnd.github.v3+json"
     }
+    print(username)
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"Error: {response.status_code}")

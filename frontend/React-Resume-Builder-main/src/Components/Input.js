@@ -85,35 +85,44 @@ function Input() {
 
     const fetchGithubProjects = async () => {
         if (!githubUsername) {
-            setFetchError("Please enter a valid GitHub URL first");
+            setFetchError("Please enter a valid GitHub username first");
             return;
         }
-        
+    
         setFetchingRepos(true);
         setFetchError("");
-        
+    
         try {
-            const response = await fetch(`https://api.github.com/users/${githubUsername}/repos?sort=updated&per_page=100`);
-            
-            if (!response.ok) {
-                throw new Error("Failed to fetch repositories. Please check the GitHub username.");
-            }
-            
+            const response = await fetch("http://127.0.0.1:8000/get-projects/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username: githubUsername }),
+            });
+    
             const data = await response.json();
-            setGithubRepos(data.map(repo => ({
-                id: repo.id,
+    
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to fetch repositories.");
+            }
+    
+            setGithubRepos(data.projects.map(repo => ({
+                id: repo.id || Math.random(), // Generate fallback ID if missing
                 name: repo.name,
-                description: repo.description || "No description available",
-                tech: repo.language || "",
-                link: repo.html_url
+                description: repo.description || "No README.md available",
+                tech: repo.language || "Not specified",
+                stars: repo.stars || 0,
+                link: repo.url
             })));
-            
+    
         } catch (error) {
             setFetchError(error.message);
         } finally {
             setFetchingRepos(false);
         }
     };
+    
 
     const toggleProjectSelection = (repo) => {
         if (selectedProjects.some(project => project.id === repo.id)) {
@@ -189,7 +198,11 @@ function Input() {
                                                 onClick={() => toggleProjectSelection(repo)}
                                             >
                                                 <div className="repo-name">{repo.name}</div>
-                                                <div className="repo-description">{repo.description}</div>
+                                                <div className="repo-description">
+                                                    {repo.description.length > 150 
+                                                        ? repo.description.substring(0, 150) + "..." 
+                                                        : repo.description}
+                                                </div>
                                                 {repo.tech && <div className="repo-tech">Tech: {repo.tech}</div>}
                                             </div>
                                         ))}
