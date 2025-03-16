@@ -18,7 +18,7 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 matrix=scipy.sparse.load_npz(os.path.join("resumehandler", "MyUtils",'sparse_matrix.npz'))
 tfidf=joblib.load(os.path.join("resumehandler", "MyUtils",'tfidf_vectorizer.pkl'))
-df=pd.read_csv(os.path.join("resumehandler", "MyUtils",'job_data.csv'))
+df=pd.read_csv(os.path.join("resumehandler", "MyUtils",'job_title_des.csv'))
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -26,7 +26,7 @@ GITHUB_PAT = os.getenv("GITHUB_PAT")
 genai.configure(api_key=GEMINI_API_KEY)
 
 API_ENDPOINT = 'https://nubela.co/proxycurl/api/v2/linkedin'
-API_KEY = ''  # Replace with your actual API key
+API_KEY = os.getenv("PROXYCURL_API_KEY")
 HEADERS = {'Authorization': 'Bearer ' + API_KEY}
 
 def fetch_linkedin_profile(url):
@@ -73,11 +73,11 @@ def get_linkedin_data(linkedin_profile_url: str) -> dict:
                 "starts_at": edu.get("starts_at", {}).get("year", "Unknown") if edu.get("starts_at") else "Unknown",
                 "ends_at": edu.get("ends_at", {}).get("year", "Unknown") if edu.get("ends_at") else "Unknown"
             })
-        output_file = "resume_data.json"
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(resume_data, f, indent=4, ensure_ascii=False)
-        print(json.dumps(resume_data, indent=4))
-        print(f"Resume data saved to {output_file}")
+        # output_file = "resume_data.json"
+        # with open(output_file, "w", encoding="utf-8") as f:
+        #     json.dump(resume_data, f, indent=4, ensure_ascii=False)
+        # print(json.dumps(resume_data, indent=4))
+        # print(f"Resume data saved to {output_file}")
         return resume_data
     except Exception as e:
         print(f"An exception occurred while processing LinkedIn data: {e}")
@@ -89,6 +89,7 @@ def fetch_github_projects(username):
         "Authorization": f"Bearer {GITHUB_PAT}",
         "Accept": "application/vnd.github.v3+json"
     }
+    print(username)
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"Error: {response.status_code}")
